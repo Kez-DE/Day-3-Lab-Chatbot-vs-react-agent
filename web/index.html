@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Academic Agent</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <aside class="settings-panel" aria-label="Agent settings">
+        <div class="brand-block">
+          <div class="brand-mark" aria-hidden="true">A</div>
+          <div>
+            <h1>Academic Agent</h1>
+            <p>Chat trực tiếp với ReAct agent và dataset điểm sinh viên.</p>
+          </div>
+        </div>
+
+        <form id="settings-form" class="settings-form">
+          <label>
+            Provider
+            <select id="provider">
+              <option value="demo">Demo offline</option>
+              <option value="openai">OpenAI</option>
+              <option value="gemini">Gemini</option>
+              <option value="local">Local GGUF</option>
+            </select>
+          </label>
+
+          <label>
+            Model
+            <input id="model" type="text" value="gpt-4o" autocomplete="off" />
+          </label>
+
+          <label>
+            Max steps
+            <input id="max-steps" type="number" min="1" max="12" value="5" />
+          </label>
+
+          <label>
+            Local model path
+            <input
+              id="local-model-path"
+              type="text"
+              value="./models/Phi-3-mini-4k-instruct-q4.gguf"
+              autocomplete="off"
+            />
+          </label>
+        </form>
+
+        <section class="identity-panel" aria-label="Accepted identity formats">
+          <h2>Định dạng được hỗ trợ</h2>
+          <ul>
+            <li><code>student_id 30 name Royce Lowe id_card 822067</code></li>
+            <li><code>30 Royce Lowe 822067</code></li>
+            <li><code>38;Jair Ball;505496</code></li>
+          </ul>
+        </section>
+      </aside>
+
+      <section class="chat-panel" aria-label="Agent chat">
+        <header class="chat-header">
+          <div>
+            <p class="eyebrow">Day 3 Lab</p>
+            <h2>Chat với agent</h2>
+          </div>
+          <button id="clear-chat" class="secondary-button" type="button">Clear</button>
+        </header>
+
+        <div id="messages" class="messages" aria-live="polite"></div>
+
+    
+
+        <form id="chat-form" class="composer">
+          <textarea
+            id="message-input"
+            rows="3"
+            placeholder="Nhập câu hỏi, ví dụ: đưa ra điểm của sinh viên 1 Kiara Perkins 620602"
+            required
+          ></textarea>
+          <button id="send-button" type="submit">Send</button>
+        </form>
+      </section>
+    </main>
+
+    <script src="/app.js"></script>
+  </body>
+</html>

@@ -1,12 +1,12 @@
 {
-  "generated_at": "2026-06-01T08:18:25.904175+00:00",
+  "generated_at": "2026-06-01T10:12:35.236986+00:00",
   "case_count": 4,
   "baseline_success_count": 4,
   "agent_success_count": 4,
   "cases": [
     {
       "id": "royce_good",
-      "query": "Evaluate academic performance for student ID card 822067.",
+      "query": "Evaluate academic performance for student_id 30 name Royce Lowe id_card 822067.",
       "identifier": "822067",
       "expected_category": "Giỏi",
       "expected_tool_result": {
@@ -64,7 +64,7 @@
         "trace": [
           {
             "step": 1,
-            "llm_response": "Thought: I need to validate the student using all required identity fields.\nAction: validate_student(30, 'Royce Lowe', '822067')",
+            "llm_response": "Thought: I need to validate the student using all required identity fields.\nAction: validate_student('30', 'Royce Lowe', '822067')",
             "observation": "{\n  \"found\": true,\n  \"student\": {\n    \"id\": 30,\n    \"name\": \"Royce Lowe\",\n    \"id_card\": \"822067\"\n  },\n  \"status\": \"Found in current dataset\"\n}"
           },
           {
@@ -80,7 +80,7 @@
     },
     {
       "id": "emmanuel_fair",
-      "query": "Evaluate academic performance for student ID card 107226.",
+      "query": "Evaluate academic performance for student_id 4 name Emmanuel Myers id_card 107226.",
       "identifier": "107226",
       "expected_category": "Khá",
       "expected_tool_result": {
@@ -138,7 +138,7 @@
         "trace": [
           {
             "step": 1,
-            "llm_response": "Thought: I need to validate the student using all required identity fields.\nAction: validate_student(4, 'Emmanuel Myers', '107226')",
+            "llm_response": "Thought: I need to validate the student using all required identity fields.\nAction: validate_student('4', 'Emmanuel Myers', '107226')",
             "observation": "{\n  \"found\": true,\n  \"student\": {\n    \"id\": 4,\n    \"name\": \"Emmanuel Myers\",\n    \"id_card\": \"107226\"\n  },\n  \"status\": \"Found in current dataset\"\n}"
           },
           {
@@ -154,7 +154,7 @@
     },
     {
       "id": "axl_failed_course",
-      "query": "Evaluate academic performance for student ID card 876012.",
+      "query": "Evaluate academic performance for student_id 10 name Axl Waters id_card 876012.",
       "identifier": "876012",
       "expected_category": "Trung bình",
       "expected_tool_result": {
@@ -217,7 +217,7 @@
         "trace": [
           {
             "step": 1,
-            "llm_response": "Thought: I need to validate the student using all required identity fields.\nAction: validate_student(10, 'Axl Waters', '876012')",
+            "llm_response": "Thought: I need to validate the student using all required identity fields.\nAction: validate_student('10', 'Axl Waters', '876012')",
             "observation": "{\n  \"found\": true,\n  \"student\": {\n    \"id\": 10,\n    \"name\": \"Axl Waters\",\n    \"id_card\": \"876012\"\n  },\n  \"status\": \"Found in current dataset\"\n}"
           },
           {
@@ -233,7 +233,7 @@
     },
     {
       "id": "invalid_student",
-      "query": "Evaluate academic performance for student ID card 999999.",
+      "query": "Evaluate academic performance for student_id 999 name Unknown Student id_card 999999.",
       "identifier": "999999",
       "expected_category": null,
       "expected_tool_result": {
@@ -241,7 +241,7 @@
         "message": "No student found for identifier: 999999"
       },
       "baseline": {
-        "answer": "No student found for identifier: 999999",
+        "answer": "No student found for identifier: 999",
         "used_tools": [
           "categorize_academic_performance"
         ],
@@ -253,8 +253,8 @@
         "trace": [
           {
             "step": 1,
-            "llm_response": "Thought: I need to validate the student using all required identity fields.\nAction: validate_student('UNKNOWN', 'UNKNOWN', '999999')",
-            "observation": "{\n  \"found\": false,\n  \"message\": \"No student found for ID card: 999999\",\n  \"expected\": {\n    \"student_id\": \"UNKNOWN\",\n    \"name\": \"UNKNOWN\",\n    \"id_card\": \"999999\"\n  }\n}"
+            "llm_response": "Thought: I need to validate the student using all required identity fields.\nAction: validate_student('999', 'Unknown Student', '999999')",
+            "observation": "{\n  \"found\": false,\n  \"message\": \"No student found for ID card: 999999\",\n  \"expected\": {\n    \"student_id\": \"999\",\n    \"name\": \"Unknown Student\",\n    \"id_card\": \"999999\"\n  }\n}"
           }
         ],
         "steps": 2

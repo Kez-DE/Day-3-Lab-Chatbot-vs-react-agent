@@ -10,7 +10,9 @@ from src.demo_provider import build_demo_agent
 
 def main():
     agent = build_demo_agent()
-    answer = agent.run("Evaluate academic performance for student ID card 822067.")
+    answer = agent.run(
+        "Evaluate academic performance for student_id 30 name Royce Lowe id_card 822067."
+    )
     print(answer)
 
 

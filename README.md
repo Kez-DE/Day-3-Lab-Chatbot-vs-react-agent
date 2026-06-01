@@ -107,6 +107,91 @@ Observation: average_score = 8.39, category = Giỏi
 Final Answer: Royce Lowe has average score 8.39 and academic category Giỏi.
 ```
 
+## Chatting With the Agent in Terminal
+
+Run an interactive terminal session:
+
+```bash
+.venv/bin/python scripts/chat_agent.py --provider demo
+```
+
+Then type questions directly:
+
+```text
+You> Evaluate academic performance for student_id 30 name Royce Lowe id_card 822067.
+Agent> Royce Lowe (ID Card: 822067) has an average score of 8.39 on the 10-point scale. Failed courses: none. Passed all courses: True. Academic category: Giỏi.
+```
+
+Student-specific prompts must include all three identity fields: `student_id`, `name`, and `id_card`.
+
+Vietnamese prompts work too when all identity fields are present:
+
+```text
+You> điểm của student_id 30 name Royce Lowe id_card 822067
+You> hãy đưa cho tôi điểm của student_id 5 name Lydia Winters id_card 688408
+You> học lực của student_id 30 name Royce Lowe id_card 822067
+```
+
+The terminal chat also accepts the natural order `student_id name id_card`:
+
+```text
+You> đưa ra điểm của sinh viên 1 Kiara Perkins 620602
+You> học lực của 10 Axl Waters 876012
+```
+
+CSV-style identity input is accepted too:
+
+```text
+You> điểm của 38;Jair Ball;505496
+```
+
+If one of the three fields is missing, the agent asks for the full identity and does not return student information.
+In terminal chat, you can then provide just the identity on the next line:
+
+```text
+You> đưa ra điểm
+Agent> Vui lòng cung cấp đủ student_id, name và id_card trước khi xem thông tin sinh viên.
+You> 10 Axl Waters 876012
+```
+
+Type `exit`, `quit`, `q`, or `:q` to stop.
+
+By default, terminal chat hides structured JSON logs from the console so the chat remains readable. Add `--show-logs` when you want to debug the ReAct trace live.
+
+Provider options:
+
+```bash
+.venv/bin/python scripts/chat_agent.py --provider openai --model gpt-4o
+.venv/bin/python scripts/chat_agent.py --provider gemini --model gemini-1.5-flash
+.venv/bin/python scripts/chat_agent.py --provider local --local-model-path ./models/Phi-3-mini-4k-instruct-q4.gguf
+```
+
+## Running the Web UI
+
+Start the local web interface:
+
+```bash
+.venv/bin/python scripts/run_web_ui.py
+```
+
+Then open:
+
+```text
+http://127.0.0.1:8000
+```
+
+If port `8000` is already in use, the script automatically tries the next free port and prints the URL, for example `http://127.0.0.1:8001`.
+
+The web UI supports the same providers as the terminal chat. Choose `Demo offline` for no API key, or choose `OpenAI` / `Gemini` after setting the relevant key in `.env`.
+
+Examples:
+
+```text
+đưa ra điểm của sinh viên 1 Kiara Perkins 620602
+điểm của 38;Jair Ball;505496
+học lực của 10 Axl Waters 876012
+```
+
 ## Running Evaluation
 
 ```bash

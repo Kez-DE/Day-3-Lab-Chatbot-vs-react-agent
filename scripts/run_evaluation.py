@@ -19,25 +19,25 @@ OUTPUT_DIR = PROJECT_ROOT / "evaluation"
 TEST_CASES = [
     {
         "id": "royce_good",
-        "query": "Evaluate academic performance for student ID card 822067.",
+        "query": "Evaluate academic performance for student_id 30 name Royce Lowe id_card 822067.",
         "identifier": "822067",
         "expected_category": "Giỏi",
     },
     {
         "id": "emmanuel_fair",
-        "query": "Evaluate academic performance for student ID card 107226.",
+        "query": "Evaluate academic performance for student_id 4 name Emmanuel Myers id_card 107226.",
         "identifier": "107226",
         "expected_category": "Khá",
     },
     {
         "id": "axl_failed_course",
-        "query": "Evaluate academic performance for student ID card 876012.",
+        "query": "Evaluate academic performance for student_id 10 name Axl Waters id_card 876012.",
         "identifier": "876012",
         "expected_category": "Trung bình",
     },
     {
         "id": "invalid_student",
-        "query": "Evaluate academic performance for student ID card 999999.",
+        "query": "Evaluate academic performance for student_id 999 name Unknown Student id_card 999999.",
         "identifier": "999999",
         "expected_category": None,
     },
