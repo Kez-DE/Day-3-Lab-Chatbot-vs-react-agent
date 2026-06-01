@@ -1,6 +1,6 @@
 # Tóm tắt đánh giá
 
-- **Thời điểm tạo**: 2026-06-01T08:10:26.025754+00:00
+- **Thời điểm tạo**: 2026-06-01T08:18:25.904175+00:00
 - **Số case kiểm thử**: 4
 - **Baseline pass**: 4/4
 - **ReAct Agent pass**: 4/4
