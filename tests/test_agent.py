@@ -156,6 +156,42 @@ def test_agent_accepts_vietnamese_labeled_identity_reordered():
     assert "Computer Science: 9.30" in answer
 
 
+def test_agent_accepts_comma_identity_name_first():
+    agent = build_demo_agent()
+
+    answer = agent.run("Cho tôi điểm của Royce Lowe, 30, 822067")
+
+    assert "Royce Lowe" in answer
+    assert "Computer Science: 9.30" in answer
+
+
+def test_agent_accepts_comma_identity_id_card_first():
+    agent = build_demo_agent()
+
+    answer = agent.run("Cho tôi điểm của 822067, Royce Lowe, 30")
+
+    assert "Royce Lowe" in answer
+    assert "Linear Algebra: 9.85" in answer
+
+
+def test_agent_accepts_space_identity_name_first():
+    agent = build_demo_agent()
+
+    answer = agent.run("Cho tôi điểm của Royce Lowe 30 822067")
+
+    assert "Royce Lowe" in answer
+    assert "Microeconomics: 8.59" in answer
+
+
+def test_agent_accepts_total_score_request_without_labels():
+    agent = build_demo_agent()
+
+    answer = agent.run("điểm tổng kết của Royce Lowe 30 822067")
+
+    assert "Royce Lowe" in answer
+    assert "Computer Science: 9.30" in answer
+
+
 def test_demo_agent_explains_identity_mismatches():
     agent = build_demo_agent()
 

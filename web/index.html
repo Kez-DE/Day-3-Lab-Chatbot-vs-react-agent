@@ -3,58 +3,97 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Academic Agent</title>
+    <title>Academic ReAct Agent</title>
     <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
     <main class="app-shell">
-      <aside class="settings-panel" aria-label="Agent settings">
+      <aside class="control-panel" aria-label="Agent controls">
         <div class="brand-block">
-          <div class="brand-mark" aria-hidden="true">A</div>
+          <div class="brand-mark" aria-hidden="true">AI</div>
           <div>
-            <h1>Academic Agent</h1>
-            <p>Chat trực tiếp với ReAct agent và dataset điểm sinh viên.</p>
+            <p class="eyebrow">Day 3 Lab</p>
+            <h1>Academic ReAct Agent</h1>
+            <p class="brand-copy">Điểm, học lực, trace và tool calls trong một giao diện xanh gọn.</p>
           </div>
         </div>
 
-        <form id="settings-form" class="settings-form">
-          <label>
-            Provider
-            <select id="provider">
-              <option value="demo">Demo offline</option>
-              <option value="openai">OpenAI</option>
-              <option value="gemini">Gemini</option>
-              <option value="local">Local GGUF</option>
-            </select>
-          </label>
+        <section class="panel-section">
+          <div class="section-title">
+            <span>Runtime</span>
+            <span id="health-pill" class="pill neutral">checking</span>
+          </div>
 
-          <label>
-            Model
-            <input id="model" type="text" value="gpt-4o" autocomplete="off" />
-          </label>
+          <form id="settings-form" class="settings-form">
+            <label>
+              Provider
+              <select id="provider">
+                <option value="demo">Demo offline</option>
+                <option value="openai">OpenAI</option>
+                <option value="gemini">Gemini</option>
+                <option value="local">Local GGUF</option>
+              </select>
+            </label>
 
-          <label>
-            Max steps
-            <input id="max-steps" type="number" min="1" max="12" value="5" />
-          </label>
+            <label>
+              Model
+              <input id="model" type="text" value="demo-academic-provider" autocomplete="off" />
+            </label>
 
-          <label>
-            Local model path
-            <input
-              id="local-model-path"
-              type="text"
-              value="./models/Phi-3-mini-4k-instruct-q4.gguf"
-              autocomplete="off"
-            />
-          </label>
-        </form>
+            <label>
+              Max steps
+              <input id="max-steps" type="number" min="1" max="12" value="5" />
+            </label>
 
-        <section class="identity-panel" aria-label="Accepted identity formats">
-          <h2>Định dạng được hỗ trợ</h2>
-          <ul>
+            <label>
+              Local model path
+              <input
+                id="local-model-path"
+                type="text"
+                value="./models/Phi-3-mini-4k-instruct-q4.gguf"
+                autocomplete="off"
+              />
+            </label>
+          </form>
+        </section>
+
+        <section class="panel-section">
+          <div class="section-title">
+            <span>Identity Builder</span>
+            <span class="pill">required</span>
+          </div>
+          <div class="identity-grid">
+            <label>
+              student_id
+              <input id="identity-student-id" type="text" placeholder="30" autocomplete="off" />
+            </label>
+            <label>
+              name
+              <input id="identity-name" type="text" placeholder="Royce Lowe" autocomplete="off" />
+            </label>
+            <label>
+              id_card
+              <input id="identity-card" type="text" placeholder="822067" autocomplete="off" />
+            </label>
+          </div>
+          <div class="button-row">
+            <button id="insert-marks-prompt" type="button" class="ghost-button">Điểm</button>
+            <button id="insert-performance-prompt" type="button" class="ghost-button">Học lực</button>
+          </div>
+        </section>
+
+        <section class="panel-section">
+          <div class="section-title">
+            <span>Accepted input</span>
+          </div>
+          <ul class="format-list">
             <li><code>student_id 30 name Royce Lowe id_card 822067</code></li>
             <li><code>30 Royce Lowe 822067</code></li>
+            <li><code>điểm tổng kết của Royce Lowe 30 822067</code></li>
+            <li><code>Royce Lowe, 30, 822067</code></li>
+            <li><code>822067, Royce Lowe, 30</code></li>
             <li><code>38;Jair Ball;505496</code></li>
+            <li><code>sinh viên Royce Lowe, mã sinh viên 30, số CCCD 822067</code></li>
           </ul>
         </section>
       </aside>
@@ -62,26 +101,89 @@
       <section class="chat-panel" aria-label="Agent chat">
         <header class="chat-header">
           <div>
-            <p class="eyebrow">Day 3 Lab</p>
-            <h2>Chat với agent</h2>
+            <p class="eyebrow">Agent Console</p>
+            <h2>Chat với academic agent</h2>
           </div>
-          <button id="clear-chat" class="secondary-button" type="button">Clear</button>
+          <div class="header-actions">
+            <button id="copy-last-answer" class="secondary-button" type="button">Copy</button>
+            <button id="export-chat" class="secondary-button" type="button">Export</button>
+            <button id="clear-chat" class="secondary-button" type="button">Clear</button>
+          </div>
         </header>
+
+        <section class="status-strip" aria-label="Current response status">
+          <div>
+            <span class="status-label">Provider</span>
+            <strong id="active-provider">demo</strong>
+          </div>
+          <div>
+            <span class="status-label">Model</span>
+            <strong id="active-model">demo-academic-provider</strong>
+          </div>
+          <div>
+            <span class="status-label">Status</span>
+            <strong id="active-status">ready</strong>
+          </div>
+          <div>
+            <span class="status-label">Steps</span>
+            <strong id="active-steps">0</strong>
+          </div>
+        </section>
 
         <div id="messages" class="messages" aria-live="polite"></div>
 
-    
+        <div class="quick-prompts" aria-label="Example prompts">
+          <button type="button" data-prompt="Cho tôi điểm của sinh viên Royce Lowe, mã sinh viên 30, số CCCD 822067">
+            Điểm Royce
+          </button>
+          <button type="button" data-prompt="Cho tôi điểm của 822067, Royce Lowe, 30">
+            Đảo thứ tự
+          </button>
+          <button type="button" data-prompt="điểm của 38;Jair Ball;505496">
+            CSV identity
+          </button>
+          <button type="button" data-prompt="học lực của 10 Axl Waters 876012">
+            Học lực
+          </button>
+          <button type="button" data-prompt="đưa ra điểm">
+            Thiếu danh tính
+          </button>
+        </div>
 
         <form id="chat-form" class="composer">
           <textarea
             id="message-input"
             rows="3"
-            placeholder="Nhập câu hỏi, ví dụ: đưa ra điểm của sinh viên 1 Kiara Perkins 620602"
+            placeholder="Nhập câu hỏi cho agent..."
             required
           ></textarea>
           <button id="send-button" type="submit">Send</button>
         </form>
       </section>
+
+      <aside class="trace-panel" aria-label="Agent trace">
+        <div class="trace-header">
+          <div>
+            <p class="eyebrow">Trace</p>
+            <h2>Thought / Action / Observation</h2>
+          </div>
+          <span id="trace-count" class="pill">0 steps</span>
+        </div>
+
+        <div id="trace-list" class="trace-list"></div>
+
+        <section class="panel-section compact">
+          <div class="section-title">
+            <span>Capabilities</span>
+          </div>
+          <div class="capability-list">
+            <span>validate_student</span>
+            <span>get_student_marks</span>
+            <span>categorize_academic_performance</span>
+            <span>course summaries</span>
+          </div>
+        </section>
+      </aside>
     </main>
 
     <script src="/app.js"></script>

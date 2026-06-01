@@ -39,7 +39,26 @@ class WebUIHandler(BaseHTTPRequestHandler):
 
     def do_GET(self) -> None:
         if self.path == "/api/health":
-            self._send_json({"ok": True})
+            self._send_json(
+                {
+                    "ok": True,
+                    "providers": ["demo", "openai", "gemini", "local"],
+                    "default_provider": "demo",
+                }
+            )
+            return
+
+        if self.path == "/api/examples":
+            self._send_json(
+                {
+                    "examples": [
+                        "Cho tôi điểm của sinh viên Royce Lowe, mã sinh viên 30, số CCCD 822067",
+                        "điểm của 38;Jair Ball;505496",
+                        "học lực của 10 Axl Waters 876012",
+                        "đưa ra điểm",
+                    ]
+                }
+            )
             return
 
         path = self.path.split("?", 1)[0]
@@ -80,7 +99,7 @@ class WebUIHandler(BaseHTTPRequestHandler):
 
             provider = str(payload.get("provider", "demo")).strip().lower()
             model = str(payload.get("model", "")).strip() or None
-            max_steps = int(payload.get("max_steps", 5))
+            max_steps = _clamp_int(payload.get("max_steps", 5), minimum=1, maximum=12)
             local_model_path = str(
                 payload.get("local_model_path", "./models/Phi-3-mini-4k-instruct-q4.gguf")
             )
@@ -91,10 +110,15 @@ class WebUIHandler(BaseHTTPRequestHandler):
                 {
                     "answer": answer,
                     "history": agent.history,
+                    "steps": len(agent.history),
+                    "status": _response_status(agent.history),
                     "provider": provider,
                     "model": agent.llm.model_name,
+                    "max_steps": agent.max_steps,
                 }
             )
+        except ValueError as exc:
+            self._send_json({"error": str(exc)}, status=HTTPStatus.BAD_REQUEST)
         except Exception as exc:
             self._send_json({"error": str(exc)}, status=HTTPStatus.INTERNAL_SERVER_ERROR)
 
@@ -161,18 +185,24 @@ def _build_agent(
     if provider == "openai":
         from src.core.openai_provider import OpenAIProvider
 
+        api_key = os.getenv("OPENAI_API_KEY")
+        if not api_key:
+            raise ValueError("OPENAI_API_KEY is not configured in .env or environment.")
         llm = OpenAIProvider(
             model_name=model or "gpt-4o",
-            api_key=os.getenv("OPENAI_API_KEY"),
+            api_key=api_key,
         )
         return ReActAgent(llm, tools, max_steps=max_steps)
 
     if provider == "gemini":
         from src.core.gemini_provider import GeminiProvider
 
+        api_key = os.getenv("GEMINI_API_KEY")
+        if not api_key:
+            raise ValueError("GEMINI_API_KEY is not configured in .env or environment.")
         llm = GeminiProvider(
             model_name=model or "gemini-1.5-flash",
-            api_key=os.getenv("GEMINI_API_KEY"),
+            api_key=api_key,
         )
         return ReActAgent(llm, tools, max_steps=max_steps)
 
@@ -185,6 +215,23 @@ def _build_agent(
         return ReActAgent(LocalProvider(model_path=str(model_path)), tools, max_steps=max_steps)
 
     raise ValueError(f"Unsupported provider: {provider}")
+
+
+def _clamp_int(value: Any, minimum: int, maximum: int) -> int:
+    try:
+        parsed = int(value)
+    except (TypeError, ValueError):
+        parsed = minimum
+    return max(minimum, min(parsed, maximum))
+
+
+def _response_status(history: list[dict[str, Any]]) -> str:
+    if not history:
+        return "completed"
+    status = str(history[-1].get("status", "completed"))
+    if status in {"identity_required", "provider_error", "direct_response"}:
+        return status
+    return "completed"
 
 
 def _create_server(host: str, preferred_port: int) -> ThreadingHTTPServer:
