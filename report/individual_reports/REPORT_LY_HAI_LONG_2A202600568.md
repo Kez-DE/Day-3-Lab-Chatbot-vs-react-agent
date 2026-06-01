@@ -7,9 +7,9 @@
 
 ---
 
-## I. Phần việc phụ trách
+## 1. Vai trò trong nhóm
 
-Trong phần chia việc của nhóm, em phụ trách chính phần **Tạo data, logging, demo offline, test và tài liệu chạy thử, làm UI**. Mục tiêu là để người chấm có thể chạy lại hệ thống mà không cần API key và vẫn thấy được trace của agent.
+Em phụ trách chính phần **demo offline, logging/telemetry, terminal chat, web UI và tài liệu chạy thử**. Mục tiêu là biến phần agent/tool thành một hệ thống có thể thao tác được, không chỉ là code chạy trong test.
 
 Các file liên quan:
 
@@ -17,185 +17,223 @@ Các file liên quan:
 src/demo_provider.py
 src/telemetry/logger.py
 src/telemetry/metrics.py
-scripts/run_demo_agent.py
-scripts/run_evaluation.py
-tests/test_agent.py
-tests/test_chatbot.py
-tests/test_evaluation.py
+scripts/chat_agent.py
+scripts/run_web_ui.py
+web/index.html
+web/styles.css
+web/app.js
 README.md
 ```
 
-### 1. Demo provider để chạy offline
+---
 
-Repo có provider cho OpenAI và Gemini, nhưng khi demo lab, API key có thể hết hạn, sai cấu hình hoặc không có mạng. Vì vậy nhóm dùng thêm `DemoAcademicProvider`.
+## 2. Công việc đã thực hiện
 
-Provider này không gọi API thật. Nó sinh output theo format ReAct:
+### 2.1 Demo provider offline
+
+`DemoAcademicProvider` giúp hệ thống chạy ổn định khi không có API key. Provider này vẫn sinh output theo format ReAct:
 
 ```text
 Thought: ...
 Action: validate_student(...)
 ```
 
-Sau khi agent nhận Observation, provider tiếp tục sinh action kế tiếp hoặc final answer.
+Điểm quan trọng là demo provider không bỏ qua agent loop. Agent vẫn phải parse action, gọi tool và nhận observation. Vì vậy demo offline vẫn kiểm tra được luồng ReAct thật.
 
-Lợi ích chính:
+### 2.2 Logging và telemetry
+
+Hệ thống ghi log JSON vào:
 
 ```text
-kết quả chạy ổn định
-không tốn API cost
-không phụ thuộc credential
-phù hợp chấm bài offline
+logs/YYYY-MM-DD.log
 ```
 
-Điểm quan trọng là demo provider không bỏ qua ReAct loop. Agent vẫn parse action, gọi tool và nhận observation như khi dùng LLM provider thật.
-
-### 2. Logging và telemetry
-
-Phần logging giúp theo dõi agent chạy qua những bước nào. Các event chính:
+Các event chính:
 
 ```text
 AGENT_START
+IDENTITY_REQUIRED
 LLM_METRIC
 LLM_RESPONSE
 TOOL_CALL
+PARSER_ERROR
 FINAL_ANSWER
 AGENT_END
 ```
 
-Ví dụ trong demo:
+Log giúp nhóm debug nhanh khi:
+
+- provider trả sai format;
+- agent gọi sai tool;
+- thiếu danh tính sinh viên;
+- tool trả mismatch;
+- agent vượt max steps.
+
+### 2.3 Terminal chat
+
+Script:
 
 ```text
-LLM_RESPONSE -> Action: validate_student(30, 'Royce Lowe', '822067')
-TOOL_CALL -> found = true
-LLM_RESPONSE -> Action: categorize_academic_performance(822067)
-TOOL_CALL -> average_score = 8.39, category = Giỏi
-FINAL_ANSWER -> Royce Lowe ... category: Giỏi
+scripts/chat_agent.py
 ```
 
-Nhờ log này, nhóm có thể giải thích agent đã làm gì thay vì chỉ đưa câu trả lời cuối.
-
-### 3. Script chạy thử
-
-Các script chính:
-
-```text
-scripts/run_baseline.py
-scripts/run_demo_agent.py
-scripts/run_evaluation.py
-```
-
-Luồng demo đề xuất:
+Chạy:
 
 ```bash
-.venv/bin/python -m pytest -q
-.venv/bin/python scripts/run_baseline.py
-.venv/bin/python scripts/run_demo_agent.py
-.venv/bin/python scripts/run_evaluation.py
+.venv/bin/python scripts/chat_agent.py --provider demo
 ```
 
-Lệnh này cho thấy đủ ba phần:
+Terminal chat hỗ trợ:
+
+- chọn provider;
+- nhập nhiều lượt;
+- ẩn log JSON khỏi console để chat dễ đọc;
+- `--show-logs` khi cần debug;
+- nhớ câu hỏi trước một lượt nếu user cần bổ sung danh tính.
+
+Ví dụ:
 
 ```text
-test suite
-baseline answer
-ReAct trace
-evaluation summary
+You> đưa ra điểm
+Agent> Vui lòng cung cấp đủ student_id, name và id_card...
+You> 10 Axl Waters 876012
+Agent> Axl Waters ... has these marks ...
 ```
 
-### 4. Test và tài liệu chạy lại
+### 2.4 Web UI
 
-Em hỗ trợ phần test để đảm bảo demo không chỉ chạy một case thủ công.
-
-Các nhóm test chính:
+Repo hiện có web UI local:
 
 ```text
-tests/test_agent.py
-tests/test_chatbot.py
-tests/test_evaluation.py
+scripts/run_web_ui.py
+web/index.html
+web/styles.css
+web/app.js
 ```
 
-README cũng ghi lại cách chạy test, baseline, ReAct demo và evaluation để người khác reproduce kết quả.
+Chạy:
+
+```bash
+.venv/bin/python scripts/run_web_ui.py
+```
+
+Mở:
+
+```text
+http://127.0.0.1:8000
+```
+
+Web UI hỗ trợ:
+
+- chọn provider: demo, OpenAI, Gemini, local;
+- nhập model;
+- nhập max steps;
+- nhập local model path;
+- quick prompts;
+- gọi API `/api/chat`;
+- health check `/api/health`;
+- tự chuyển port nếu `8000` đang bận.
+
+### 2.5 Tài liệu chạy thử
+
+README được cập nhật để người khác có thể chạy:
+
+```text
+test
+baseline
+demo agent
+terminal chat
+web UI
+evaluation
+```
+
+Tài liệu này quan trọng vì lab không chỉ cần code đúng, mà cần người chấm chạy lại được.
 
 ---
 
-## II. Debugging case study
+## 3. Debugging case study
 
-### Vấn đề gặp phải
+### Vấn đề 1: Port 8000 bị chiếm
 
-Demo bằng API thật không ổn định nếu key không hợp lệ. Khi kiểm tra, OpenAI key có thể rỗng hoặc Gemini key có thể invalid. Nếu phụ thuộc hoàn toàn vào API thật, buổi demo có thể fail dù code ReAct và tool vẫn đúng.
-
-### Nguyên nhân
-
-Root cause không nằm ở ReAct loop, mà nằm ở external dependency:
+Khi web server đang chạy, chạy thêm lần nữa sẽ lỗi:
 
 ```text
-API key
-network
-model availability
-provider quota
-package version
+OSError: Address already in use
 ```
-
-Đây là loại lỗi không nên làm hỏng phần chấm core logic của lab.
 
 ### Cách xử lý
 
-Nhóm tách demo thành hai hướng:
+`scripts/run_web_ui.py` được cập nhật để thử các port tiếp theo:
 
 ```text
-1. Offline demo: dùng DemoAcademicProvider, luôn chạy được.
-2. API path: giữ OpenAIProvider/GeminiProvider cho trường hợp có key hợp lệ.
+8000 -> 8001 -> 8002 -> ...
 ```
 
-Trong README và report, nhóm ghi rõ bản demo chính dùng deterministic provider. Cách này trung thực hơn so với nói rằng API thật đã chạy nếu credential chưa hợp lệ.
+Server in URL thực tế để user mở đúng trang.
 
----
+### Vấn đề 2: Log JSON làm rối terminal chat
 
-## III. Nhận xét cá nhân về Chatbot và ReAct Agent
+Agent logger mặc định ghi cả console và file. Khi chat terminal, JSON log chen vào giữa câu trả lời.
 
-Điểm em học được là demo agent không chỉ cần code đúng. Demo còn cần reproducible. Nếu hệ thống chỉ chạy khi API key đúng, mạng ổn và quota còn, người chấm khó kiểm tra lại.
+### Cách xử lý
 
-Với ReAct Agent, log và script chạy thử rất quan trọng. Trace giúp chứng minh agent thật sự gọi tool, còn evaluation giúp chứng minh agent không chỉ pass một ví dụ đẹp.
-
-Baseline chatbot dễ demo hơn vì output ngắn. ReAct Agent cần nhiều log hơn, nhưng log đó lại là bằng chứng cho quá trình suy luận.
-
----
-
-## IV. Hướng cải thiện
-
-Nếu phát triển tiếp, em muốn thêm một script API chính thức:
-
-```text
-scripts/run_api_agent.py
-```
-
-Script này có thể đọc `.env` và chọn provider:
-
-```text
-DEFAULT_PROVIDER=openai | gemini | demo
-DEFAULT_MODEL=...
-```
-
-Ngoài ra nên chuẩn hóa final answer tiếng Việt để khi demo trước lớp, output dễ đọc hơn.
-
----
-
-## V. Kết quả kiểm tra phần liên quan
-
-Các lệnh kiểm tra:
+CLI mặc định tắt console log, nhưng vẫn ghi log file. Khi cần debug có thể chạy:
 
 ```bash
-.venv/bin/python -m pytest -q
-.venv/bin/python scripts/run_demo_agent.py
-.venv/bin/python scripts/run_evaluation.py
+.venv/bin/python scripts/chat_agent.py --provider demo --show-logs
 ```
 
-Kết quả mới nhất:
+---
+
+## 4. Liên hệ với dataset và agent
+
+Web UI không tự tính điểm. Nó chỉ là giao diện gửi request đến API local:
 
 ```text
-16 passed
-Baseline success: 4/4
-Agent success: 4/4
+Browser -> /api/chat -> ReActAgent -> score tools -> Data/database.csv
 ```
 
-Phần của em hoàn thành khi người khác có thể clone repo, chạy lệnh demo và thấy được trace/evaluation mà không cần API key.
+Vì vậy web UI dùng lại toàn bộ logic validation, parser và tool hiện có. Cách này tránh việc terminal và web trả kết quả khác nhau.
+
+---
+
+## 5. Kết quả kiểm tra
+
+Các phần liên quan được kiểm tra bằng:
+
+```text
+tests/test_agent.py
+manual API check /api/health
+manual API check /api/chat
+```
+
+Kết quả hiện tại:
+
+```text
+25 passed
+```
+
+Ví dụ API đã kiểm tra:
+
+```text
+POST /api/chat
+message: điểm của 38;Jair Ball;505496
+```
+
+Kết quả trả đúng điểm của Jair Ball.
+
+---
+
+## 6. Nhận xét cá nhân
+
+Phần giao diện làm rõ một vấn đề: agent tốt nhưng nếu chỉ chạy bằng script cứng thì khó dùng. Terminal chat giúp test nhanh; web UI giúp người chấm thao tác trực quan hơn. Tuy nhiên UI không nên chứa logic nghiệp vụ. Logic vẫn phải nằm ở agent và tool để dễ test.
+
+---
+
+## 7. Hướng cải thiện
+
+1. Hiển thị trace `Thought/Action/Observation` trong web UI bằng panel riêng.
+2. Thêm nút tải log hiện tại.
+3. Thêm bảng xem dataset mẫu trong web UI.
+4. Thêm endpoint `/api/evaluation` để chạy benchmark từ web.
+5. Tách server web sang FastAPI nếu cần deploy.

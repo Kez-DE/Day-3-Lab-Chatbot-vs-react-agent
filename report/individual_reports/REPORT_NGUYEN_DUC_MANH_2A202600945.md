@@ -7,9 +7,9 @@
 
 ---
 
-## I. Phần việc phụ trách
+## 1. Vai trò trong nhóm
 
-Trong phần chia việc của nhóm, em phụ trách chính phần **xử lý dữ liệu điểm và thiết kế score tools**. Đây là lớp nền để baseline chatbot và ReAct Agent có thể trả lời bằng dữ liệu thật từ file CSV, thay vì tự sinh câu trả lời.
+Em phụ trách chính phần **dataset, score tools và policy học lực**. Đây là lớp nền của toàn bộ hệ thống. Nếu phần đọc dữ liệu hoặc tính điểm sai, cả baseline chatbot, ReAct Agent, terminal chat và web UI đều sẽ trả kết quả sai.
 
 Các file liên quan:
 
@@ -20,15 +20,19 @@ tests/test_score_tools.py
 report/group_report/GROUP_REPORT_NHOM_24.md
 ```
 
-### 1. Đọc và chuẩn hóa dữ liệu điểm
+---
 
-Dataset của lab nằm trong:
+## 2. Công việc đã thực hiện
+
+### 2.1 Chuẩn hóa dataset
+
+Dataset nằm tại:
 
 ```text
 Data/database.csv
 ```
 
-Các cột chính:
+Dữ liệu có 100 sinh viên, mỗi dòng gồm:
 
 ```text
 ID
@@ -41,7 +45,7 @@ Calculus
 Linear Algebra
 ```
 
-Một điểm cần xử lý là điểm trong CSV dùng dấu phẩy cho số thập phân:
+Điểm trong CSV dùng dấu phẩy làm phần thập phân:
 
 ```text
 9,30
@@ -49,7 +53,7 @@ Một điểm cần xử lý là điểm trong CSV dùng dấu phẩy cho số t
 3,16
 ```
 
-Nếu đưa trực tiếp vào `float()`, Python sẽ lỗi. Vì vậy phần tool cần chuyển:
+Em xử lý phần này để tool chuyển về float:
 
 ```text
 9,30 -> 9.30
@@ -57,11 +61,11 @@ Nếu đưa trực tiếp vào `float()`, Python sẽ lỗi. Vì vậy phần to
 3,16 -> 3.16
 ```
 
-Sau bước này, hệ thống mới tính được average score chính xác.
+Nếu không chuẩn hóa bước này, các hàm tính average score sẽ lỗi hoặc sai dữ liệu.
 
-### 2. Thiết kế score tools
+### 2.2 Thiết kế score tools
 
-Các tool chính trong `src/tools/score_tools.py`:
+Các tool chính:
 
 ```text
 validate_student(student_id, name, id_card)
@@ -71,13 +75,19 @@ grade_policy_lookup()
 categorize_academic_performance(identifier)
 ```
 
-Các tool này được tách nhỏ để agent gọi từng bước rõ ràng. Ví dụ, thay vì tạo một tool chung kiểu `query_database(question)`, nhóm dùng tool có input/output cụ thể.
+Thiết kế này tách rõ trách nhiệm:
 
-Cách tách này giúp giảm hallucination. Agent không cần tự hiểu toàn bộ CSV. Nó chỉ cần chọn đúng tool và dùng kết quả trả về.
+- `validate_student`: xác thực danh tính.
+- `get_student_marks`: lấy điểm từng môn.
+- `calculate_average_score`: tính trung bình và môn trượt.
+- `grade_policy_lookup`: trả policy học lực.
+- `categorize_academic_performance`: tổng hợp kết quả cuối.
 
-### 3. Áp dụng policy phân loại học lực
+Cách tách tool giúp ReAct Agent không phải tự tính từ text. Agent chỉ chọn tool, còn tính toán do Python thực hiện deterministic.
 
-Policy trong lab dùng thang điểm 10:
+### 2.3 Áp dụng policy học lực
+
+Policy hiện tại:
 
 ```text
 Xuất sắc: average_score >= 9.0
@@ -87,26 +97,30 @@ Trung bình: 5.0 <= average_score < 6.5
 Yếu: average_score < 5.0
 ```
 
-Ngoài average score, tool còn kiểm tra môn trượt:
+Điều kiện qua môn:
 
 ```text
-course score < 4.0
+score >= 4.0
 ```
 
-Case Axl Waters là ví dụ quan trọng:
+Điều kiện bổ sung:
 
 ```text
-ID card: 876012
-Average score: 6.31
-Failed course: Data Structures and Algorithms (3.16)
-Category: Trung bình
+Muốn được xếp loại Khá trở lên, sinh viên phải qua tất cả các môn.
 ```
 
-Nếu chỉ nhìn average, có thể kết luận thiếu thông tin. Vì vậy output tool phải trả cả `failed_courses` và `passed_all_courses`.
+Vì vậy tool cần trả thêm:
 
-### 4. Tool mở rộng cho phân tích lớp
+```text
+failed_courses
+passed_all_courses
+base_category
+category
+```
 
-Ngoài student-level tools, nhóm còn có tool mở rộng:
+### 2.4 Tool phân tích lớp
+
+Ngoài tool theo sinh viên, em cũng hỗ trợ các tool theo lớp:
 
 ```text
 list_courses()
@@ -115,106 +129,120 @@ get_low_score_students(course_name, threshold)
 compare_courses()
 ```
 
-Các tool này giúp report có thể phân tích thêm theo môn học nếu cần. Trong bản evaluation chính, nhóm tập trung vào student-level evaluation để đúng phạm vi lab.
+Các tool này giúp repo có khả năng mở rộng ngoài câu hỏi “điểm của một sinh viên”, ví dụ hỏi môn nào có pass rate thấp hoặc danh sách sinh viên dưới một ngưỡng điểm.
 
 ---
 
-## II. Debugging case study
+## 3. Case kiểm thử tiêu biểu
 
-### Vấn đề gặp phải
-
-Lỗi dễ gặp nhất là parse điểm sai do CSV dùng dấu phẩy. Nếu không chuẩn hóa, các phép tính average sẽ không chạy hoặc trả kết quả sai.
-
-Ví dụ dữ liệu:
+### Royce Lowe
 
 ```text
-Computer Science = 9,30
-Microeconomics = 8,59
+ID: 30
+ID_Card: 822067
+Average: 8.39
+Category: Giỏi
+Failed courses: none
 ```
 
-Python cần dữ liệu dạng:
+### Axl Waters
 
 ```text
-9.30
-8.59
+ID: 10
+ID_Card: 876012
+Average: 6.31
+Failed course: Data Structures and Algorithms (3.16)
+Category: Trung bình
 ```
 
-### Nguyên nhân
+Case Axl Waters quan trọng vì nó kiểm tra hệ thống không được chỉ nhìn average score. Môn dưới 4.0 phải được ghi nhận trong `failed_courses`.
 
-Root cause là format dữ liệu trong CSV không giống format số mặc định của Python. Đây là lỗi thường gặp trong data engineering: dữ liệu nhìn đúng với người đọc, nhưng chưa đúng với parser.
+---
+
+## 4. Debugging case study
+
+### Vấn đề
+
+CSV dùng định dạng số có dấu phẩy:
+
+```text
+9,30
+```
+
+Trong Python:
+
+```python
+float("9,30")
+```
+
+sẽ lỗi.
 
 ### Cách xử lý
 
-Tool xử lý score cần làm sạch dữ liệu trước khi tính toán:
+Trước khi ép kiểu, tool chuẩn hóa:
 
 ```text
-replace comma decimal
-convert to float
-skip non-score columns
-round average score
-return structured dict
+value.strip().replace(",", ".")
 ```
 
-Sau khi xử lý, test được viết để kiểm tra case Royce Lowe:
+Sau khi sửa, test xác nhận:
 
 ```text
-Average score: 8.39
-Category: Giỏi
-```
-
-Kết quả test hiện tại:
-
-```text
-16 passed
+Computer Science của Royce Lowe = 9.30
+Linear Algebra của Royce Lowe = 9.85
 ```
 
 ---
 
-## III. Nhận xét cá nhân về Chatbot và ReAct Agent
+## 5. Liên hệ với web UI và agent
 
-Từ góc nhìn data, agent chỉ tốt khi tool trả dữ liệu đúng. Nếu tool parse sai điểm hoặc policy sai, ReAct trace vẫn có vẻ hợp lý nhưng kết luận cuối vẫn sai.
+Web UI và terminal chat đều gọi agent. Agent lại gọi score tools. Vì vậy phần của em là tầng backend dữ liệu cho cả hai giao diện.
 
-Vì vậy phần quan trọng nhất không phải chỉ là prompt. Với bài toán này, lớp tool mới là nơi đảm bảo correctness.
-
-ReAct Agent có lợi thế là nó để lộ quá trình dùng tool. Khi thấy trace:
+Ví dụ user nhập trong web:
 
 ```text
-Action: categorize_academic_performance(876012)
-Observation: failed_courses = Data Structures and Algorithms (3.16)
+điểm của 38;Jair Ball;505496
 ```
 
-người đọc biết kết luận “Trung bình” không phải do model tự đoán. Nó đến từ dữ liệu và policy.
+Luồng xử lý:
+
+```text
+Web UI -> /api/chat -> ReAct Agent -> validate_student -> get_student_marks -> Final Answer
+```
+
+Nếu `score_tools.py` sai, web UI vẫn hiển thị đẹp nhưng kết quả sai. Vì vậy test cho tool là điều kiện nền trước khi kiểm thử giao diện.
 
 ---
 
-## IV. Hướng cải thiện
+## 6. Kết quả kiểm tra
 
-Nếu phát triển tiếp, em muốn thêm kiểm tra dữ liệu đầu vào:
+Các test liên quan:
 
 ```text
-phát hiện score bị thiếu
-phát hiện score ngoài khoảng 0-10
-phát hiện duplicate ID_Card
-phát hiện tên trùng nhưng ID khác nhau
+tests/test_score_tools.py
+tests/test_agent.py
 ```
 
-Các kiểm tra này phù hợp với hướng data engineering hơn. Trước khi agent chạy, pipeline nên validate dataset để tránh lỗi lan sang phần trả lời.
+Kết quả hiện tại của toàn repo:
+
+```text
+25 passed
+```
 
 ---
 
-## V. Kết quả kiểm tra phần liên quan
+## 7. Nhận xét cá nhân
 
-Các lệnh kiểm tra:
+Qua phần này, em thấy trong hệ thống dùng LLM, phần tính toán nên để tool deterministic xử lý. LLM phù hợp để hiểu yêu cầu và chọn bước tiếp theo, nhưng không nên tự tính điểm hoặc tự phân loại học lực từ text. Việc tách dataset, parser và policy ra thành tool riêng giúp hệ thống dễ kiểm thử, dễ debug và đáng tin hơn.
 
-```bash
-.venv/bin/python -m pytest tests/test_score_tools.py -q
-.venv/bin/python -m pytest -q
-```
+---
 
-Kết quả mới nhất:
+## 8. Hướng cải thiện
 
-```text
-16 passed
-```
+Nếu tiếp tục phát triển, phần dataset/tool nên cải thiện:
 
-Phần của em hoàn thành khi score tools đọc đúng CSV, tính đúng average score, trả đúng category và xử lý được case môn trượt.
+1. Thêm schema validation cho CSV trước khi chạy agent.
+2. Kiểm tra duplicate `ID` hoặc `ID_Card`.
+3. Thêm semester/status để hỗ trợ nhiều kỳ học.
+4. Thêm export kết quả ra CSV/JSON từ web UI.
+5. Thêm test cho các course-level tools với nhiều threshold khác nhau.
