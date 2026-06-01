@@ -1,0 +1,266 @@
+{
+  "generated_at": "2026-06-01T08:10:26.025754+00:00",
+  "case_count": 4,
+  "baseline_success_count": 4,
+  "agent_success_count": 4,
+  "cases": [
+    {
+      "id": "royce_good",
+      "query": "Evaluate academic performance for student ID card 822067.",
+      "identifier": "822067",
+      "expected_category": "Giỏi",
+      "expected_tool_result": {
+        "found": true,
+        "student": {
+          "id": 30,
+          "name": "Royce Lowe",
+          "id_card": "822067"
+        },
+        "average_score": 8.39,
+        "course_count": 5,
+        "failed_courses": [],
+        "passed_all_courses": true,
+        "base_category": "Giỏi",
+        "category": "Giỏi",
+        "policy": {
+          "scale": "10-point scale",
+          "pass_threshold": 4.0,
+          "categories": [
+            {
+              "name": "Xuất sắc",
+              "rule": "average_score >= 9.0"
+            },
+            {
+              "name": "Giỏi",
+              "rule": "8.0 <= average_score < 9.0"
+            },
+            {
+              "name": "Khá",
+              "rule": "6.5 <= average_score < 8.0"
+            },
+            {
+              "name": "Trung bình",
+              "rule": "5.0 <= average_score < 6.5"
+            },
+            {
+              "name": "Yếu",
+              "rule": "average_score < 5.0"
+            }
+          ],
+          "eligibility_note": "A student must pass every course to be categorized as Khá or above."
+        },
+        "eligibility_note": "Eligible for the average-based category."
+      },
+      "baseline": {
+        "answer": "Royce Lowe has an average score of 8.39 and is categorized as Giỏi.",
+        "used_tools": [
+          "categorize_academic_performance"
+        ],
+        "success": true
+      },
+      "agent": {
+        "answer": "Royce Lowe (ID Card: 822067) has an average score of 8.39 on the 10-point scale. Failed courses: none. Passed all courses: True. Academic category: Giỏi.",
+        "success": true,
+        "trace": [
+          {
+            "step": 1,
+            "llm_response": "Thought: I need to validate the student using all required identity fields.\nAction: validate_student(30, 'Royce Lowe', '822067')",
+            "observation": "{\n  \"found\": true,\n  \"student\": {\n    \"id\": 30,\n    \"name\": \"Royce Lowe\",\n    \"id_card\": \"822067\"\n  },\n  \"status\": \"Found in current dataset\"\n}"
+          },
+          {
+            "step": 2,
+            "llm_response": "Thought: The student exists, so I need marks, average score, failed courses, and final category.\nAction: categorize_academic_performance(822067)",
+            "observation": "{\n  \"found\": true,\n  \"student\": {\n    \"id\": 30,\n    \"name\": \"Royce Lowe\",\n    \"id_card\": \"822067\"\n  },\n  \"average_score\": 8.39,\n  \"course_count\": 5,\n  \"failed_courses\": [],\n  \"passed_all_courses\": true,\n  \"base_category\": \"Giỏi\",\n  \"category\": \"Giỏi\",\n  \"policy\": {\n    \"scale\": \"10-point scale\",\n    \"pass_threshold\": 4.0,\n    \"categories\": [\n      {\n        \"name\": \"Xuất sắc\",\n        \"rule\": \"average_score >= 9.0\"\n      },\n      {\n        \"name\": \"Giỏi\",\n        \"rule\": \"8.0 <= average_score < 9.0\"\n      },\n      {\n        \"name\": \"Khá\",\n        \"rule\": \"6.5 <= average_score < 8.0\"\n      },\n      {\n        \"name\": \"Trung bình\",\n        \"rule\": \"5.0 <= average_score < 6.5\"\n      },\n      {\n        \"name\": \"Yếu\",\n        \"rule\": \"average_score < 5.0\"\n      }\n    ],\n    \"eligibility_note\": \"A student must pass every course to be categorized as Khá or above.\"\n  },\n  \"eligibility_note\": \"Eligible for the average-based category.\"\n}"
+          }
+        ],
+        "steps": 3
+      },
+      "baseline_success": true,
+      "agent_success": true
+    },
+    {
+      "id": "emmanuel_fair",
+      "query": "Evaluate academic performance for student ID card 107226.",
+      "identifier": "107226",
+      "expected_category": "Khá",
+      "expected_tool_result": {
+        "found": true,
+        "student": {
+          "id": 4,
+          "name": "Emmanuel Myers",
+          "id_card": "107226"
+        },
+        "average_score": 6.96,
+        "course_count": 5,
+        "failed_courses": [],
+        "passed_all_courses": true,
+        "base_category": "Khá",
+        "category": "Khá",
+        "policy": {
+          "scale": "10-point scale",
+          "pass_threshold": 4.0,
+          "categories": [
+            {
+              "name": "Xuất sắc",
+              "rule": "average_score >= 9.0"
+            },
+            {
+              "name": "Giỏi",
+              "rule": "8.0 <= average_score < 9.0"
+            },
+            {
+              "name": "Khá",
+              "rule": "6.5 <= average_score < 8.0"
+            },
+            {
+              "name": "Trung bình",
+              "rule": "5.0 <= average_score < 6.5"
+            },
+            {
+              "name": "Yếu",
+              "rule": "average_score < 5.0"
+            }
+          ],
+          "eligibility_note": "A student must pass every course to be categorized as Khá or above."
+        },
+        "eligibility_note": "Eligible for the average-based category."
+      },
+      "baseline": {
+        "answer": "Emmanuel Myers has an average score of 6.96 and is categorized as Khá.",
+        "used_tools": [
+          "categorize_academic_performance"
+        ],
+        "success": true
+      },
+      "agent": {
+        "answer": "Emmanuel Myers (ID Card: 107226) has an average score of 6.96 on the 10-point scale. Failed courses: none. Passed all courses: True. Academic category: Khá.",
+        "success": true,
+        "trace": [
+          {
+            "step": 1,
+            "llm_response": "Thought: I need to validate the student using all required identity fields.\nAction: validate_student(4, 'Emmanuel Myers', '107226')",
+            "observation": "{\n  \"found\": true,\n  \"student\": {\n    \"id\": 4,\n    \"name\": \"Emmanuel Myers\",\n    \"id_card\": \"107226\"\n  },\n  \"status\": \"Found in current dataset\"\n}"
+          },
+          {
+            "step": 2,
+            "llm_response": "Thought: The student exists, so I need marks, average score, failed courses, and final category.\nAction: categorize_academic_performance(107226)",
+            "observation": "{\n  \"found\": true,\n  \"student\": {\n    \"id\": 4,\n    \"name\": \"Emmanuel Myers\",\n    \"id_card\": \"107226\"\n  },\n  \"average_score\": 6.96,\n  \"course_count\": 5,\n  \"failed_courses\": [],\n  \"passed_all_courses\": true,\n  \"base_category\": \"Khá\",\n  \"category\": \"Khá\",\n  \"policy\": {\n    \"scale\": \"10-point scale\",\n    \"pass_threshold\": 4.0,\n    \"categories\": [\n      {\n        \"name\": \"Xuất sắc\",\n        \"rule\": \"average_score >= 9.0\"\n      },\n      {\n        \"name\": \"Giỏi\",\n        \"rule\": \"8.0 <= average_score < 9.0\"\n      },\n      {\n        \"name\": \"Khá\",\n        \"rule\": \"6.5 <= average_score < 8.0\"\n      },\n      {\n        \"name\": \"Trung bình\",\n        \"rule\": \"5.0 <= average_score < 6.5\"\n      },\n      {\n        \"name\": \"Yếu\",\n        \"rule\": \"average_score < 5.0\"\n      }\n    ],\n    \"eligibility_note\": \"A student must pass every course to be categorized as Khá or above.\"\n  },\n  \"eligibility_note\": \"Eligible for the average-based category.\"\n}"
+          }
+        ],
+        "steps": 3
+      },
+      "baseline_success": true,
+      "agent_success": true
+    },
+    {
+      "id": "axl_failed_course",
+      "query": "Evaluate academic performance for student ID card 876012.",
+      "identifier": "876012",
+      "expected_category": "Trung bình",
+      "expected_tool_result": {
+        "found": true,
+        "student": {
+          "id": 10,
+          "name": "Axl Waters",
+          "id_card": "876012"
+        },
+        "average_score": 6.31,
+        "course_count": 5,
+        "failed_courses": [
+          {
+            "course": "Data Structures and Algorithms",
+            "score": 3.16
+          }
+        ],
+        "passed_all_courses": false,
+        "base_category": "Trung bình",
+        "category": "Trung bình",
+        "policy": {
+          "scale": "10-point scale",
+          "pass_threshold": 4.0,
+          "categories": [
+            {
+              "name": "Xuất sắc",
+              "rule": "average_score >= 9.0"
+            },
+            {
+              "name": "Giỏi",
+              "rule": "8.0 <= average_score < 9.0"
+            },
+            {
+              "name": "Khá",
+              "rule": "6.5 <= average_score < 8.0"
+            },
+            {
+              "name": "Trung bình",
+              "rule": "5.0 <= average_score < 6.5"
+            },
+            {
+              "name": "Yếu",
+              "rule": "average_score < 5.0"
+            }
+          ],
+          "eligibility_note": "A student must pass every course to be categorized as Khá or above."
+        },
+        "eligibility_note": "Eligible for the average-based category."
+      },
+      "baseline": {
+        "answer": "Axl Waters has an average score of 6.31 and is categorized as Trung bình.",
+        "used_tools": [
+          "categorize_academic_performance"
+        ],
+        "success": true
+      },
+      "agent": {
+        "answer": "Axl Waters (ID Card: 876012) has an average score of 6.31 on the 10-point scale. Failed courses: Data Structures and Algorithms (3.16). Passed all courses: False. Academic category: Trung bình.",
+        "success": true,
+        "trace": [
+          {
+            "step": 1,
+            "llm_response": "Thought: I need to validate the student using all required identity fields.\nAction: validate_student(10, 'Axl Waters', '876012')",
+            "observation": "{\n  \"found\": true,\n  \"student\": {\n    \"id\": 10,\n    \"name\": \"Axl Waters\",\n    \"id_card\": \"876012\"\n  },\n  \"status\": \"Found in current dataset\"\n}"
+          },
+          {
+            "step": 2,
+            "llm_response": "Thought: The student exists, so I need marks, average score, failed courses, and final category.\nAction: categorize_academic_performance(876012)",
+            "observation": "{\n  \"found\": true,\n  \"student\": {\n    \"id\": 10,\n    \"name\": \"Axl Waters\",\n    \"id_card\": \"876012\"\n  },\n  \"average_score\": 6.31,\n  \"course_count\": 5,\n  \"failed_courses\": [\n    {\n      \"course\": \"Data Structures and Algorithms\",\n      \"score\": 3.16\n    }\n  ],\n  \"passed_all_courses\": false,\n  \"base_category\": \"Trung bình\",\n  \"category\": \"Trung bình\",\n  \"policy\": {\n    \"scale\": \"10-point scale\",\n    \"pass_threshold\": 4.0,\n    \"categories\": [\n      {\n        \"name\": \"Xuất sắc\",\n        \"rule\": \"average_score >= 9.0\"\n      },\n      {\n        \"name\": \"Giỏi\",\n        \"rule\": \"8.0 <= average_score < 9.0\"\n      },\n      {\n        \"name\": \"Khá\",\n        \"rule\": \"6.5 <= average_score < 8.0\"\n      },\n      {\n        \"name\": \"Trung bình\",\n        \"rule\": \"5.0 <= average_score < 6.5\"\n      },\n      {\n        \"name\": \"Yếu\",\n        \"rule\": \"average_score < 5.0\"\n      }\n    ],\n    \"eligibility_note\": \"A student must pass every course to be categorized as Khá or above.\"\n  },\n  \"eligibility_note\": \"Eligible for the average-based category.\"\n}"
+          }
+        ],
+        "steps": 3
+      },
+      "baseline_success": true,
+      "agent_success": true
+    },
+    {
+      "id": "invalid_student",
+      "query": "Evaluate academic performance for student ID card 999999.",
+      "identifier": "999999",
+      "expected_category": null,
+      "expected_tool_result": {
+        "found": false,
+        "message": "No student found for identifier: 999999"
+      },
+      "baseline": {
+        "answer": "No student found for identifier: 999999",
+        "used_tools": [
+          "categorize_academic_performance"
+        ],
+        "success": false
+      },
+      "agent": {
+        "answer": "No student found for ID card: 999999",
+        "success": true,
+        "trace": [
+          {
+            "step": 1,
+            "llm_response": "Thought: I need to validate the student using all required identity fields.\nAction: validate_student('UNKNOWN', 'UNKNOWN', '999999')",
+            "observation": "{\n  \"found\": false,\n  \"message\": \"No student found for ID card: 999999\",\n  \"expected\": {\n    \"student_id\": \"UNKNOWN\",\n    \"name\": \"UNKNOWN\",\n    \"id_card\": \"999999\"\n  }\n}"
+          }
+        ],
+        "steps": 2
+      },
+      "baseline_success": true,
+      "agent_success": true
+    }
+  ]
+}

@@ -1,56 +1,188 @@
-# Lab 3: Chatbot vs ReAct Agent (Industry Edition)
+# Lab 3: Chatbot vs ReAct Agent
 
-Welcome to Phase 3 of the Agentic AI course! This lab focuses on moving from a simple LLM Chatbot to a sophisticated **ReAct Agent** with industry-standard monitoring.
+This repo implements a small academic advising agent for comparing a simple chatbot baseline with a ReAct-style agent.
 
-## 🚀 Getting Started
+The agent evaluates student performance from `Data/database.csv` by validating a student, reading marks, calculating the average score, checking failed courses, and assigning an academic category.
 
-### 1. Setup Environment
-Copy the `.env.example` to `.env` and fill in your API keys:
-```bash
-cp .env.example .env
+## Dataset
+
+`Data/database.csv` contains 100 student records with these columns:
+
+- `ID`
+- `Name`
+- `ID_Card`
+- `Computer Science`
+- `Microeconomics`
+- `Data Structures and Algorithms`
+- `Calculus`
+- `Linear Algebra`
+
+Scores use comma decimals in the CSV, for example `9,30`. The Python tools convert them to floats before calculation.
+
+The dataset has no explicit semester or student-status column. In this lab, it is treated as one score snapshot for demonstration.
+
+## Lab Objectives
+
+1. **Baseline Chatbot**: provide a simple non-ReAct comparison point.
+2. **ReAct Loop**: implement `Thought → Action → Observation → Final Answer` in `src/agent/agent.py`.
+3. **Provider Switching**: keep the agent behind the `LLMProvider` interface so OpenAI, Gemini, local models, or the deterministic demo provider can be used.
+4. **Failure Analysis**: use logs in `logs/` to inspect tool calls, parser errors, and final answers.
+5. **Evaluation and Report**: compare baseline vs agent and write group/individual reports.
+
+## Project Structure
+
+```text
+Data/database.csv                         # score dataset
+src/agent/agent.py                        # ReAct loop
+src/chatbot.py                            # baseline chatbot
+src/demo_provider.py                      # deterministic offline provider
+src/tools/score_tools.py                  # score analysis tools
+src/core/*.py                             # provider interface and model providers
+src/telemetry/*.py                        # JSON logs and metrics
+scripts/run_baseline.py                   # baseline demo
+scripts/run_demo_agent.py                 # ReAct demo
+scripts/run_evaluation.py                 # benchmark runner
+evaluation/results.json                   # generated evaluation result
+evaluation/summary.md                     # generated evaluation summary
+report/group_report/GROUP_REPORT_NHOM_F2.md
+report/individual_reports/REPORT_NGUYEN_DUC_KHANG_2A202600588.md
+tests/                                    # automated tests
 ```
 
-### 2. Install Dependencies
+## Setup
+
+Create or activate the virtual environment, then install dependencies:
+
 ```bash
+python3 -m venv .venv
+. .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 3. Directory Structure
-- `src/tools/`: Extension point for your custom tools.
+If `.venv` already exists, use it directly:
 
-## 🏠 Running with Local Models (CPU)
+```bash
+. .venv/bin/activate
+```
 
-If you don't want to use OpenAI or Gemini, you can run open-source models (like Phi-3) directly on your CPU using `llama-cpp-python`.
+## Running Tests
 
-### 1. Download the Model
-Download the **Phi-3-mini-4k-instruct-q4.gguf** (approx 2.2GB) from Hugging Face:
-- [Phi-3-mini-4k-instruct-GGUF](https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-gguf)
-- Direct Download: [phi-3-mini-4k-instruct-q4.gguf](https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-gguf/resolve/main/Phi-3-mini-4k-instruct-q4.gguf)
+```bash
+.venv/bin/python -m pytest -q
+```
 
-### 2. Place Model in Project
-Create a `models/` folder in the root and move the downloaded `.gguf` file there.
+Latest verified result:
 
-### 3. Update `.env`
-Change your `DEFAULT_PROVIDER` and set the path:
+```text
+15 passed
+```
+
+## Running the Baseline
+
+```bash
+.venv/bin/python scripts/run_baseline.py
+```
+
+The baseline extracts a student identifier and returns a direct academic summary. It does not expose a ReAct trace.
+
+## Running the ReAct Demo Agent
+
+```bash
+.venv/bin/python scripts/run_demo_agent.py
+```
+
+The demo provider is deterministic and does not require an API key. It follows the same ReAct format expected from a real LLM provider.
+
+Example flow:
+
+```text
+Thought: validate the student
+Action: validate_student(30, "Royce Lowe", "822067")
+Observation: Royce Lowe found
+
+Thought: evaluate marks and category
+Action: categorize_academic_performance(822067)
+Observation: average_score = 8.39, category = Giỏi
+
+Final Answer: Royce Lowe has average score 8.39 and academic category Giỏi.
+```
+
+## Running Evaluation
+
+```bash
+.venv/bin/python scripts/run_evaluation.py
+```
+
+This writes:
+
+```text
+evaluation/results.json
+evaluation/summary.md
+```
+
+Current benchmark:
+
+- Royce Lowe / 822067 → Giỏi
+- Emmanuel Myers / 107226 → Khá
+- Axl Waters / 876012 → Trung bình with failed course
+- Invalid ID / 999999 → not found
+
+Latest verified result:
+
+```text
+Baseline success: 4/4
+Agent success: 4/4
+```
+
+## Academic Policy Used
+
+Pass threshold:
+
+```text
+course score >= 4.0
+```
+
+Academic category by average score on a 10-point scale:
+
+- Xuất sắc: average_score >= 9.0
+- Giỏi: 8.0 <= average_score < 9.0
+- Khá: 6.5 <= average_score < 8.0
+- Trung bình: 5.0 <= average_score < 6.5
+- Yếu: average_score < 5.0
+
+Additional rule:
+
+```text
+To be categorized as Khá or above, the student must pass every course.
+```
+
+## Reports
+
+Group report:
+
+```text
+report/group_report/GROUP_REPORT_NHOM_F2.md
+```
+
+Individual report for Nguyễn Đức Khang:
+
+```text
+report/individual_reports/REPORT_NGUYEN_DUC_KHANG_2A202600588.md
+```
+
+## Local Model Option
+
+The repo still supports local GGUF models through `src/core/local_provider.py`. To use a local model, download a GGUF model and set:
+
 ```env
 DEFAULT_PROVIDER=local
 LOCAL_MODEL_PATH=./models/Phi-3-mini-4k-instruct-q4.gguf
 ```
 
-## 🎯 Lab Objectives
+Model files should stay under `models/` and should not be committed.
 
-1.  **Baseline Chatbot**: Observe the limitations of a standard LLM when faced with multi-step reasoning.
-2.  **ReAct Loop**: Implement the `Thought-Action-Observation` cycle in `src/agent/agent.py`.
-3.  **Provider Switching**: Swap between OpenAI and Gemini seamlessly using the `LLMProvider` interface.
-4.  **Failure Analysis**: Use the structured logs in `logs/` to identify why the agent fails (hallucinations, parsing errors).
-5.  **Grading & Bonus**: Follow the [SCORING.md](file:///Users/tindt/personal/ai-thuc-chien/day03-lab-agent/SCORING.md) to maximize your points and explore bonus metrics.
+## Notes
 
-## 🛠️ How to Use This Baseline
-The code is designed as a **Production Prototype**. It includes:
-- **Telemetry**: Every action is logged in JSON format for later analysis.
-- **Robust Provider Pattern**: Easily extendable to any LLM API.
-- **Clean Skeletons**: Focus on the logic that matters—the agent's reasoning process.
-
----
-
-*Happy Coding! Let's build agents that actually work.*
+- `.env` is ignored and should not be committed.
+- `logs/` is ignored because it is generated during runs.
+- `evaluation/` contains generated benchmark artifacts used by the reports.
