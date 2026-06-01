@@ -295,6 +295,7 @@ code {
     border-bottom: 1px solid var(--line);
   }
 
+  
   .chat-panel {
     min-height: 68vh;
   }
