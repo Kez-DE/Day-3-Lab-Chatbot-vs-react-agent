@@ -1,6 +1,6 @@
 # Báo cáo nhóm - Lab 3: Chatbot vs ReAct Agent
 
-- **Nhóm**: F2
+- **Nhóm**: 24
 - **Thành viên**:
   - Lê Quốc Anh - 2A202600824
   - Nguyễn Đức Khang - 2A202600588
@@ -12,7 +12,7 @@
 
 ## 1. Tóm tắt hệ thống
 
-Nhóm F2 xây dựng một agent tư vấn học tập nhỏ. Agent đọc dữ liệu điểm từ `Data/database.csv`, xác thực sinh viên, lấy điểm các môn, tính điểm trung bình theo thang 10 và phân loại học lực theo chính sách đã định nghĩa trong code.
+Nhóm 24 xây dựng một agent tư vấn học tập nhỏ. Agent đọc dữ liệu điểm từ `Data/database.csv`, xác thực sinh viên, lấy điểm các môn, tính điểm trung bình theo thang 10 và phân loại học lực theo chính sách đã định nghĩa trong code.
 
 Dataset hiện có các cột:
 
@@ -770,4 +770,4 @@ Nếu phát triển tiếp, nhóm sẽ ưu tiên:
 
 ## 18. Kết luận
 
-Nhóm F2 hoàn thành luồng chính của lab: baseline chatbot, ReAct Agent, tool tính điểm, trace, evaluation và report. Hệ thống hiện trả lời được các case Giỏi, Khá, Trung bình có môn trượt và invalid student. Điểm mạnh nhất của bản này là traceability: mỗi câu trả lời của agent có thể lần ngược về tool observation thay vì chỉ là một đoạn text do chatbot sinh ra.
+Nhóm 24 hoàn thành luồng chính của lab: baseline chatbot, ReAct Agent, tool tính điểm, trace, evaluation và report. Hệ thống hiện trả lời được các case Giỏi, Khá, Trung bình có môn trượt và invalid student. Điểm mạnh nhất của bản này là traceability: mỗi câu trả lời của agent có thể lần ngược về tool observation thay vì chỉ là một đoạn text do chatbot sinh ra.
